@@ -1,6 +1,33 @@
 local API_URL = "https://touchline.wraithedvoid.workers.dev/"
+local localKeyFile = "LunarKey.json"
+local HttpService = game:GetService("HttpService")
 
-local function getKey()
+local function loadScript(key)
+    local scriptUrl = API_URL .. "?action=getscript&key=" .. key
+    local success, source = pcall(function()
+        return game:HttpGet(scriptUrl)
+    end)
+    if success then
+        loadstring(source)()
+    end
+end
+
+-- 1. Check if they have a valid saved key from the last 24 hours
+local hasValidKey = false
+if isfile and readfile and isfile(localKeyFile) then
+    local success, data = pcall(function() return HttpService:JSONDecode(readfile(localKeyFile)) end)
+    if success and data and (os.time() - data.time < 86400) then
+        -- Check with Cloudflare just to be safe
+        local check = game:HttpGet(API_URL .. "?action=check&key=" .. data.key)
+        if string.find(check, "true") then
+            hasValidKey = true
+            loadScript(data.key)
+        end
+    end
+end
+
+-- 2. If no valid key, show the UI
+if not hasValidKey then
     local gui = Instance.new("ScreenGui")
     gui.Name = "LunarAuth"
     gui.ResetOnSpawn = false
@@ -85,22 +112,17 @@ local function getKey()
             status.Text = "Success! Loading..."
             status.TextColor3 = Color3.fromRGB(0, 255, 0)
             
+            -- SAVE THE KEY FOR 24 HOURS
+            if writefile then
+                writefile(localKeyFile, HttpService:JSONEncode({key = userKey, time = os.time()}))
+            end
+            
             task.wait(1)
             gui:Destroy()
-            
-            local scriptUrl = API_URL .. "?action=getscript&key=" .. userKey
-            local loadSuccess, scriptSource = pcall(function()
-                return game:HttpGet(scriptUrl)
-            end)
-            
-            if loadSuccess then
-                loadstring(scriptSource)()
-            end
+            loadScript(userKey)
         else
             status.Text = "Invalid Key!"
             status.TextColor3 = Color3.fromRGB(255, 0, 0)
         end
     end)
 end
-
-getKey()
