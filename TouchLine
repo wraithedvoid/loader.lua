@@ -1,0 +1,106 @@
+local API_URL = "https://touchline.wraithedvoid.workers.dev/"
+
+local function getKey()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LunarAuth"
+    gui.ResetOnSpawn = false
+    gui.Parent = game:GetService("CoreGui")
+    
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(0, 300, 0, 220)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -110)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 10, 55)
+    frame.Active = true
+    frame.Draggable = true
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color = Color3.fromRGB(0, 240, 255)
+    stroke.Thickness = 2
+    
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.BackgroundTransparency = 1
+    title.Text = "🌌 Lunar Hub Auth"
+    title.TextColor3 = Color3.fromRGB(245, 245, 245)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 16
+    
+    local getKeyBtn = Instance.new("TextButton", frame)
+    getKeyBtn.Size = UDim2.new(0, 260, 0, 35)
+    getKeyBtn.Position = UDim2.new(0, 20, 0, 45)
+    getKeyBtn.BackgroundColor3 = Color3.fromRGB(45, 15, 80)
+    getKeyBtn.TextColor3 = Color3.fromRGB(0, 240, 255)
+    getKeyBtn.Font = Enum.Font.GothamBold
+    getKeyBtn.Text = "Get Key (Website)"
+    Instance.new("UICorner", getKeyBtn).CornerRadius = UDim.new(0, 6)
+    
+    local box = Instance.new("TextBox", frame)
+    box.Size = UDim2.new(0, 260, 0, 35)
+    box.Position = UDim2.new(0, 20, 0, 90)
+    box.BackgroundColor3 = Color3.fromRGB(45, 15, 80)
+    box.TextColor3 = Color3.fromRGB(245, 245, 245)
+    box.PlaceholderText = "Paste Key Here..."
+    box.Font = Enum.Font.GothamMedium
+    box.TextSize = 14
+    box.Text = ""
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+    
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0, 260, 0, 35)
+    btn.Position = UDim2.new(0, 20, 0, 135)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 240, 255)
+    btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = "Authenticate"
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    
+    local status = Instance.new("TextLabel", frame)
+    status.Size = UDim2.new(1, 0, 0, 20)
+    status.Position = UDim2.new(0, 0, 0, 180)
+    status.BackgroundTransparency = 1
+    status.Text = ""
+    status.TextColor3 = Color3.fromRGB(200, 200, 200)
+    status.Font = Enum.Font.Gotham
+    
+    getKeyBtn.MouseButton1Click:Connect(function()
+        local url = "https://wraithedvoid.github.io/lunar.website/" 
+        setclipboard(url)
+        status.Text = "Link Copied! Open in Browser."
+        status.TextColor3 = Color3.fromRGB(255, 200, 0)
+    end)
+    
+    btn.MouseButton1Click:Connect(function()
+        local userKey = box.Text
+        if userKey == "" then return end
+        
+        status.Text = "Checking..."
+        status.TextColor3 = Color3.fromRGB(255, 200, 0)
+        
+        local success, response = pcall(function()
+            return game:HttpGet(API_URL .. "?action=check&key=" .. userKey)
+        end)
+        
+        if success and string.find(response, "true") then
+            status.Text = "Success! Loading..."
+            status.TextColor3 = Color3.fromRGB(0, 255, 0)
+            
+            task.wait(1)
+            gui:Destroy()
+            
+            local scriptUrl = API_URL .. "?action=getscript&key=" .. userKey
+            local loadSuccess, scriptSource = pcall(function()
+                return game:HttpGet(scriptUrl)
+            end)
+            
+            if loadSuccess then
+                loadstring(scriptSource)()
+            end
+        else
+            status.Text = "Invalid Key!"
+            status.TextColor3 = Color3.fromRGB(255, 0, 0)
+        end
+    end)
+end
+
+getKey()
